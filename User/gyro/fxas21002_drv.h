@@ -77,38 +77,6 @@ typedef struct{
 	    int16_t	z;
 }sraw_t;
 	
-class FXAS21002C
-{
-	public:
-	
-
-	// Sensor data
-	
-
-	// FXAS21002C functions
-	// Initialization & Termination
-	void init(void);
-	void standby(void);
-	void active(void);
-	void ready(void);
-
-	// Query sensor data
-	void readGyroData(void);
-	void readTempData(void);
-
-	// Resolution
-	float getGres(void);
-
-	//Calibrate
-	void calibrate(float * gBias);
-
-	//Reset
-	void reset(void);
-
-	private:
-	// Sensor address
-	byte address;
-};
 	
 /* 
  * Global Variables
@@ -119,7 +87,27 @@ class FXAS21002C
 /* 
  * Functions
  */
- 
+void FXAS21002C_standby();
+
+// Sets the FXAS21000 to active mode.
+// Needs to be in this mode to output data
+void FXAS21002C_ready();
+
+// Put the FXAS21002C into active mode.
+// Needs to be in this mode to output data.
+void FXAS21002C_active();
+
+void FXAS21002C_init();
+
+// Read the gyroscope data
+void FXAS21002C_gyro_read();
+
+// Get accelerometer resolution
+float FXAS21002C_gres_get(void);
+
+void FXAS21002C_calibrate(float * gb);
+
+void FXAS21002C_reset();
 
 
 

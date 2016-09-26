@@ -17,7 +17,7 @@
 /* 
  * Macros
  */
-#define BUF_LEN	32
+#define SPI_WR_RETRY_NUM 200
 
 /* 
  * Constants
@@ -37,9 +37,6 @@
 /* 
  * Local Variables
  */
-static uint16 spi_tx_idx,spi_rx_idx;
-static uint8 spi_tx_buf[BUF_LEN];
-static uint8 spi_rx_buf[BUF_LEN];
 
 
 /* 
@@ -116,13 +113,13 @@ uint8 spi_write_byte(uint8 tx_data)
  * 读出一个字节数据
  * 成功返回1，不成功返回0
  */
-uint8 spi_read_byte((uint8 *rx_data))
+uint8 spi_read_byte(uint8 *rx_data)
 {
 	u8 retry = 0;
 	while (SPI_I2S_GetFlagStatus(SPI_MASTER, SPI_I2S_FLAG_RXNE) == RESET) //检查指定的SPI标志位设置与否:接受缓存非空标志位
     {
         retry++;
-        if(retry > SPI_RD_RETRY_NUM)
+        if(retry > SPI_WR_RETRY_NUM)
             return 0;
     }
     *rx_data = SPI_I2S_ReceiveData(SPI_MASTER); //返回通过SPIx最近接收的数据

@@ -10,7 +10,7 @@
 /* 
  * Includes
  */
-#include "fxas21002.h"
+#include "fxas21002_drv.h"
 #include "stm32_spi.h"
 
 
@@ -39,7 +39,7 @@
 /* 
  * Local Variables
  */
-static device_addr;
+//static device_addr;
 static sraw_t gyro_data; // RAW acceleration sensor data
 static int8 temp; // RAW temperature data
 
@@ -54,14 +54,7 @@ static void reg_write_byte(uint8 reg, uint8 value);
 static uint8 reg_read_byte(uint8 reg);
 static void regs_read(uint8 start, uint8 count, uint8 *buf);
 
-
-void fxas21002_init(uint8 addr)
-{
-	device_addr = addr;
-	odr = GODR_800HZ; 
-	fsr = GFS_2000DPS;
-}
-
+static uint8 FXAS21002C_temp_read();
 
 /*
  * 写入一个字节数据
@@ -87,7 +80,7 @@ static uint8 reg_read(uint8 reg)
 	return value;
 }
 
-void regs_read(uint8 reg, uint8 count, uint8* dest)
+static void regs_read(uint8 reg, uint8 count, uint8* dest)
 {
 	uint8 cnt = 0;
 
@@ -138,6 +131,9 @@ void FXAS21002C_active()
 
 void FXAS21002C_init()
 {
+    odr = GODR_800HZ; 
+	fsr = GFS_2000DPS;
+    
 	FXAS21002C_standby();  // Must be in standby to change registers
 
 	// Set up the full scale range to 250, 500, 1000, or 2000 deg/s.
@@ -150,14 +146,14 @@ void FXAS21002C_init()
 
 	// Disable FIFO, route FIFO and rate threshold interrupts to INT2, enable data ready interrupt, route to INT1
   	// Active HIGH, push-pull output driver on interrupts
-  	writeReg(FXAS21002C_H_CTRL_REG2, 0x0E);
+  	reg_write(FXAS21002C_H_CTRL_REG2, 0x0E);
 
   	 // Set up rate threshold detection; at max rate threshold = FSR; rate threshold = THS*FSR/128
   	//writeReg(FXAS21002C_H_RT_CFG, 0x07);         // enable rate threshold detection on all axes
   	//writeReg(FXAS21002C_H_RT_THS, 0x00 | 0x0D);  // unsigned 7-bit THS, set to one-tenth FSR; set clearing debounce counter
   	//writeReg(FXAS21002C_H_RT_COUNT, 0x04);       // set to 4 (can set up to 255)         
 	// Configure interrupts 1 and 2
-	writeReg(CTRL_REG3, 0x01)); // set FS_DOUBLE
+	reg_write(FXAS21002C_H_CTRL_REG3, 0x01); // set FS_DOUBLE
 	//writeReg(CTRL_REG3, readReg(CTRL_REG3) |  (0x02)); // select ACTIVE HIGH, push-pull interrupts    
 	//writeReg(CTRL_REG4, readReg(CTRL_REG4) & ~(0x1D)); // clear bits 0, 3, and 4
 	//writeReg(CTRL_REG4, readReg(CTRL_REG4) |  (0x1D)); // DRDY, Freefall/Motion, P/L and tap ints enabled  
@@ -173,28 +169,31 @@ void FXAS21002C_gyro_read()
 	regs_read(FXAS21002C_H_OUT_X_MSB, 6, &raw_data[0]);  // Read the six raw data registers into data array
 	gyro_data.x = ((int16) (raw_data[0] << 8 | raw_data[1]));
 	gyro_data.y = ((int16) (raw_data[2] << 8 | raw_data[3]));
-	gyro_data.z = ((int16) (raw_data[4] << 8 | raw_data[5]))
+	gyro_data.z = ((int16) (raw_data[4] << 8 | raw_data[5]));
 }
 
 // Get accelerometer resolution
 float FXAS21002C_gres_get(void)
 {
+    float gr;
+    gr = 0;
 	switch (fsr)
 	{
 		// Possible gyro scales (and their register bit settings) are:
   // 250 DPS (11), 500 DPS (10), 1000 DPS (01), and 2000 DPS  (00). 
     case GFS_2000DPS:
-          g_res = 1600.0/8192.0;
+          gr = 1600.0/8192.0;
           break;
     case GFS_1000DPS:
-          g_res = 800.0/8192.0;
+          gr = 800.0/8192.0;
           break;
     case GFS_500DPS:
-          g_res = 400.0/8192.0;
+          gr = 400.0/8192.0;
           break;           
     case GFS_250DPS:
-          g_res = 200.0/8192.0;
+          gr = 200.0/8192.0;
 	}
+    return gr;
 }
 
 void FXAS21002C_calibrate(float * gb)
@@ -208,16 +207,15 @@ void FXAS21002C_calibrate(float * gb)
   //readGyroData(temp);
   reg_read(FXAS21002C_H_STATUS);
   
-  standby();  // Must be in standby to change registers
+  FXAS21002C_standby();  // Must be in standby to change registers
 
   reg_write(FXAS21002C_H_CTRL_REG1, 0x08);   // select 50 Hz ODR
   fcount = 50;                                     // sample for 1 second
   reg_write(FXAS21002C_H_CTRL_REG0, 0x03);   // select 200 deg/s full scale
   uint16 gyrosensitivity = 41;                   // 40.96 LSB/deg/s
 
-  active();  // Set to active to start collecting data
+  FXAS21002C_active();  // Set to active to start collecting data
    
-  uint8_t rawData[6];  // x/y/z FIFO accel data stored here
   for(tmp = 0; tmp < fcount; tmp++)   // construct count sums for each axis
   {
 	  regs_read(FXAS21002C_H_OUT_X_MSB, 6, &raw_data[0]);  // Read the FIFO data registers into data array
@@ -240,10 +238,10 @@ void FXAS21002C_calibrate(float * gb)
   g_bias[1] = (float)gyro_bias[1]/(float) gyrosensitivity; // get average values
   g_bias[2] = (float)gyro_bias[2]/(float) gyrosensitivity; // get average values
 
-  ready();  // Set to ready
+  FXAS21002C_ready();  // Set to ready
 }
 
-void FXAS21002C::reset() 
+void FXAS21002C_reset() 
 {
 	reg_write(FXAS21002C_H_CTRL_REG1, 0x20); // set reset bit to 1 to assert software reset to zero at end of boot process
 	delay(100);

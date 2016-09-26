@@ -77,7 +77,7 @@ uint8 spi_write_byte(uint8 tx_data);
  * 读出一个字节数据
  * 成功返回1，不成功返回0
  */
-uint8 spi_read_byte((uint8 *rx_data));
+uint8 spi_read_byte(uint8 *rx_data);
 
 
 
