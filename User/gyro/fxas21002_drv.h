@@ -7,8 +7,8 @@
  *
  */
  
-#ifndef  _STM32_SPI_H_
-#define  _STM32_SPI_H_
+#ifndef  _FXAS21002_H_
+#define  _FXAS21002_H_
 
 /* 
  * Includes
@@ -43,8 +43,7 @@
 #define FXAS21002C_H_CTRL_REG1        0x13
 #define FXAS21002C_H_CTRL_REG2        0x14
 #define FXAS21002C_H_CTRL_REG3        0x15
-
-
+	
 	
 /* 
  * Constants
@@ -111,5 +110,5 @@ void FXAS21002C_reset();
 
 
 
-#endif /* _STM32_SPI_H_ */
+#endif /* _FXAS21002_H_ */
 

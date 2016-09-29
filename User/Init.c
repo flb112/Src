@@ -12,6 +12,7 @@
 //************************************************************************
 #define   _INIT_C_
 #include "_Include.h"
+#include "stm32_spi.h"
 //************************************************************************
 // *功    能：IO设置成默认值
 // *入    口：
@@ -268,6 +269,7 @@ void  Init_All( void )
 	Sys_Init();  
 	Init_GPIO();
     Timer2_Init(10-1,1800-1);
+    Time3_Init();
     System_ParameterInit();
     CanStandbyMode_Init();
     

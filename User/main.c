@@ -13,7 +13,8 @@
 //************************************************************************
 #define   __MAIN_C__
 #include  "_Include.h"
-
+#include "stm32_spi.h"
+#include "fxas21002_drv.h"
 
 
 
@@ -33,7 +34,8 @@
 //************************************************************************
  int main(void)
  {	 
-    Init_All();
+   Init_All();
+   // TIMInit();
     Str_Init();
     AccStr_Init();    
     delay_init(72); 
@@ -51,7 +53,8 @@
 #if Kionx_Acc
    SpiDrive_Init();
 #endif 
-    
+   spi_init();
+   FXAS21002C_init();
    
     Temp_Calib();
     Can_BaudSetGet(&CO_BitRate);  

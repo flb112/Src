@@ -12,18 +12,26 @@
 //************************************************************************
 #ifndef __TIMER_H__
 	#define __TIMER_H__
+#include "_Type.h"
 	/*-----宏定义---------------------*/
+#define TIM3_TICK   165 //us
 	/*-----结构体数据类型定义---------*/
+typedef void (*hk_tm_proc)(void);
+
+//extern hk_timer_proc timer3_hook;
 	/*-----常量（表格等）声明---------*/
 	/*-----函数声明-------------------*/
+    void TIMInit(void);
 	void Timer2_Init();//TIM2初始化
 	void TIM2_IRQHandler(void); //TIM2中断处理函数
 	void Time_Proc(void);
-	int8u  Time4_Init( int16u  timerb50us);
-	void Timer4Enable( int32u timercount ) ;
-	void Timer4Disable( void ); //关闭时钟;
-	void TIM4_IRQHandler(void); //TIM3中断处理函数	
+    
+	void Time3_Init( void);
+	void TIM3_IRQHandler(void); //TIM3中断处理函数	
     void Timer1_Init(void)  ;
+    
+    int8u timer_set_hook(int8u timer_num,hk_tm_proc fn);
+    
 #endif
 //***********************************************************************/
 #ifdef   __TIMER_C__

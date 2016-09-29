@@ -392,7 +392,7 @@ void Co_DataWrite_Proc(int16u *databuf,int16u *txc_index,int8u DataType,int16u S
 void Co_DataPacket_Single(int16u *databuf,int16u *txc_index,int8u DataType,int16u StdId,int8u timerenb,int8u bsum)
 {
             int8u k=0;
-            int8u buf[8]=0;
+            int8u buf[8]={0};
 
 
                    Co_TxCan[*txc_index].StdId=StdId;

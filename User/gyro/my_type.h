@@ -7,6 +7,7 @@
 #ifndef _MY_TYPE_H_
 #define _MY_TYPE_H_
 
+#include "stdio.h"
 /* ------------------------------------------------------------------------------------------------
  *                                               Types
  * ------------------------------------------------------------------------------------------------
@@ -34,13 +35,6 @@ typedef unsigned long   uint32;
 #define NULL 0
 #endif
 
-#ifndef BOOL
-typedef enum
-{
-  FALSE = 0,
-  TRUE = !FALSE
-}BOOL;
-#endif
 
 /*
 typedef enum {

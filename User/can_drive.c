@@ -413,7 +413,8 @@ u8 Text_Send_Msg(void)
         recvcnt =0;
         RdReturn=0;
         mbox= CAN_Transmit(CAN1, &TxMessage);             
- 
+
+        return 0;
 }
 
 

@@ -12,6 +12,7 @@
 //************************************************************************
 #define   __TIMER_C__
 #include  "_Include.h"
+#include "fxas21002_drv.h"
 /*******************************************************************************
 * Function Name  :定时
 * Description    : 定时器2初始化
@@ -143,6 +144,8 @@ void Time_Proc(void)
      
    	}    
 }
+
+hk_tm_proc timer3_hook;
 //************************************************************************
 // *功    能：TIM4 500us定时初始化
 // *入    口：
@@ -150,63 +153,41 @@ void Time_Proc(void)
 // *备    注：用于变频器的通信
 // *函数性质：
 //************************************************************************
-//int8u  Time4_Init( int16u  timerb50us)
-//{	
-//	int16u	PrescalerValue = 0;
-//    TIM_TimeBaseInitTypeDef    TIM_TimeBaseStructure ;
-//    NVIC_InitTypeDef 	NVIC_InitStructure;
-//
-//	/* TIM4 clock enable */
-//	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE);
-//	/* Compute the prescaler value */
-//	PrescalerValue = (uint16_t) (SystemCoreClock / 2000) - 1; // 1s/2000=500us 
-//	/* Time base configuration */
-//	TIM_TimeBaseStructure.TIM_Period = timerb50us;			//定时自动载入值
-//	TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;	
-//	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;		//值为0该功能不使用
-//	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;	//向上计数
-//	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);	
-//	TIM_ARRPreloadConfig(TIM4, ENABLE);			//使能预装载寄存器
-//	
-//	/* Configure one bit for preemption priority */
-//	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); ////抢占优先级2位，从优先级1位
-//	/* Enable the TIM4 Interrupt */
-//	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	
-//	NVIC_Init(&NVIC_InitStructure);
-//	
-//	/* TIM IT DISABLE */
-//	TIM_ClearITPendingBit(TIM4,TIM_IT_Update);		//清除中断标志位
-//	TIM_ITConfig(TIM4, TIM_IT_Update, DISABLE);		//溢出中断关闭
-//	/* TIM4 DISABLE counter */
-//	TIM_Cmd(TIM4,  DISABLE);						//中断计数关闭
-//	return TRUE;;
-//}
-////************************************************************************
-//// *功    能：TIM3 50us定时初始化
-//// *入    口：
-//// *出    口：
-//// *备    注：
-//// *函数性质：
-////************************************************************************
-//void Timer4Enable( int32u timercount ) //打开时钟
-//{
-//	Time4_Init((int16u)timercount);
-//	TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-//	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);
-//	TIM_SetCounter(TIM4,0x0000); 
-//	TIM_Cmd(TIM4, ENABLE);
-//}
-//
-//void Timer4Disable(void) //关闭时钟
-//{
-//	TIM_Cmd(TIM4, DISABLE);
-//	TIM_SetCounter(TIM4,0x0000); 
-//	TIM_ITConfig(TIM4, TIM_IT_Update, DISABLE);
-//	TIM_ClearITPendingBit(TIM4, TIM_IT_Update);
-//}
+void Time3_Init( void)
+{	
+	int16u	PrescalerValue = 0;
+    TIM_TimeBaseInitTypeDef    TIM_TimeBaseStructure ;
+    NVIC_InitTypeDef 	NVIC_InitStructure;
+
+	/* TIM4 clock enable */
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
+	/* Compute the prescaler value */
+	PrescalerValue = (uint16_t) (SystemCoreClock*9 / 1000000) - 1; // 1s/1000000=1us 
+	/* Time base configuration */
+	TIM_TimeBaseStructure.TIM_Period = TIM3_TICK-1;			//定时自动载入值
+	TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;	
+	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;		//值为0该功能不使用
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;	//向上计数
+	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);	
+	TIM_ARRPreloadConfig(TIM3, ENABLE);			//使能预装载寄存器
+	
+	/* Configure one bit for preemption priority */
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); ////抢占优先级2位，从优先级1位
+	/* Enable the TIM4 Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	
+	NVIC_Init(&NVIC_InitStructure);
+	
+	/* TIM IT DISABLE */
+	TIM_ClearITPendingBit(TIM3, TIM_IT_Update);
+	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);
+	TIM_SetCounter(TIM3,0x0000); 
+	TIM_Cmd(TIM3, ENABLE);					//中断计数关闭
+    timer3_hook = NULL;
+}
+
 //************************************************************************
 // *功    能：TIM4 中断服务程序
 // *入    口：
@@ -214,12 +195,29 @@ void Time_Proc(void)
 // *备    注：与变频器通信
 // *函数性质：
 ////************************************************************************
-//void  TIM4_IRQHandler( void ) // 
-//{  // static int16u count=0;
-//	if ( SET == TIM_GetITStatus( TIM4, TIM_IT_Update ) )  // check interrupt source
-//    {
-//        TIM_ClearITPendingBit( TIM4, TIM_IT_Update ) ;
-////          	 Modm_Timout();  
-//
-//   	 }	
-//}
+void  TIM3_IRQHandler( void ) // 
+{  // static int16u count=0;
+	if ( SET == TIM_GetITStatus( TIM3, TIM_IT_Update ) )  // check interrupt source
+    {
+        TIM_ClearITPendingBit( TIM3, TIM_IT_Update ) ;
+//          	 Modm_Timout();  
+        if(timer3_hook != NULL)
+        {
+            (*timer3_hook)();
+        }
+   	 }	
+}
+
+
+/*
+ *
+ */
+int8u timer_set_hook(int8u timer_num,hk_tm_proc fn)
+{
+    if(3 == timer_num)
+    {
+        timer3_hook = fn;
+        return 1;
+    }
+    return 0;
+}

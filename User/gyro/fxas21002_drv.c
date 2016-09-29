@@ -12,6 +12,8 @@
  */
 #include "fxas21002_drv.h"
 #include "stm32_spi.h"
+#include "delay.h"
+#include "Timer.h"
 
 
 
@@ -41,7 +43,6 @@
  */
 //static device_addr;
 static sraw_t gyro_data; // RAW acceleration sensor data
-static int8 temp; // RAW temperature data
 
 // Sensor configuration
 static uint8 fsr,odr;
@@ -50,8 +51,9 @@ float g_res, g_bias[3] = {0, 0, 0}; // scale resolutions per LSB for the sensors
 /* 
  * Local Functions
  */
-static void reg_write_byte(uint8 reg, uint8 value);
-static uint8 reg_read_byte(uint8 reg);
+//static void EXTIX_init(void);
+static void reg_write(uint8 reg, uint8 value);
+static uint8 reg_read(uint8 reg);
 static void regs_read(uint8 start, uint8 count, uint8 *buf);
 
 static uint8 FXAS21002C_temp_read();
@@ -62,8 +64,12 @@ static uint8 FXAS21002C_temp_read();
  */
 static void reg_write(uint8 reg, uint8 value)
 {
-	spi_write_byte(reg);
-	spi_write_byte(value);
+    SPI1_ENABLE();
+    delay_us(1);
+	spi_write_read_byte(reg);
+	spi_write_read_byte(value);
+    delay_us(1);
+    SPI1_DISABLE();
 }
 
 /*
@@ -74,9 +80,13 @@ static uint8 reg_read(uint8 reg)
 {
 	uint8 value;
 
+    SPI1_ENABLE();
+    delay_us(1);
 	reg |= 0x80;	//read
-	spi_write_byte(reg);
-	spi_read_byte(&value);
+	spi_write_read_byte(reg);
+	value = spi_write_read_byte(0xff);
+    delay_us(1);
+    SPI1_DISABLE();
 	return value;
 }
 
@@ -84,14 +94,18 @@ static void regs_read(uint8 reg, uint8 count, uint8* dest)
 {
 	uint8 cnt = 0;
 
+    SPI1_ENABLE();
+    delay_us(2);
 	reg |= 0x80;	//read
-	spi_write_byte(reg);
+	spi_write_read_byte(reg);
 
 	while (cnt<count) 
 	{
-		dest[cnt]=spi_read_byte(reg+cnt);   // Put read results in the Rx buffer
+		dest[cnt] = spi_write_read_byte(0xff);   // Put read results in the Rx buffer
 		cnt++;
 	}
+    delay_us(2);
+    SPI1_DISABLE();
 }
 
 // Read the temperature data
@@ -134,6 +148,8 @@ void FXAS21002C_init()
     odr = GODR_800HZ; 
 	fsr = GFS_2000DPS;
     
+    //EXTIX_init();
+    //tmp = reg_read(FXAS21002C_H_WHO_AM_I);
 	FXAS21002C_standby();  // Must be in standby to change registers
 
 	// Set up the full scale range to 250, 500, 1000, or 2000 deg/s.
@@ -143,11 +159,9 @@ void FXAS21002C_init()
 	{
 		reg_write(FXAS21002C_H_CTRL_REG1, odr << 2);    
 	}  
-
 	// Disable FIFO, route FIFO and rate threshold interrupts to INT2, enable data ready interrupt, route to INT1
   	// Active HIGH, push-pull output driver on interrupts
-  	reg_write(FXAS21002C_H_CTRL_REG2, 0x0E);
-
+  	reg_write(FXAS21002C_H_CTRL_REG2, 0x0C);
   	 // Set up rate threshold detection; at max rate threshold = FSR; rate threshold = THS*FSR/128
   	//writeReg(FXAS21002C_H_RT_CFG, 0x07);         // enable rate threshold detection on all axes
   	//writeReg(FXAS21002C_H_RT_THS, 0x00 | 0x0D);  // unsigned 7-bit THS, set to one-tenth FSR; set clearing debounce counter
@@ -160,6 +174,8 @@ void FXAS21002C_init()
 	//writeReg(CTRL_REG5, 0x01);  // DRDY on INT1, P/L and taps on INT2
 
 	FXAS21002C_active();  // Set to active to start reading
+    
+    timer_set_hook(3,FXAS21002C_gyro_read);
 }
 
 // Read the gyroscope data
@@ -170,6 +186,8 @@ void FXAS21002C_gyro_read()
 	gyro_data.x = ((int16) (raw_data[0] << 8 | raw_data[1]));
 	gyro_data.y = ((int16) (raw_data[2] << 8 | raw_data[3]));
 	gyro_data.z = ((int16) (raw_data[4] << 8 | raw_data[5]));
+   // printf("x=%d,y=%d,z=%d",gyro_data.x,gyro_data.y,gyro_data.z);
+   // printf("\r\n");
 }
 
 // Get accelerometer resolution
@@ -227,7 +245,7 @@ void FXAS21002C_calibrate(float * gb)
 	  gyro_bias[1] += (int32_t) temp[1];
 	  gyro_bias[2] += (int32_t) temp[2];
 	  
-	  delay(25); // wait for next data sample at 50 Hz rate
+	  delay_ms(20); // wait for next data sample at 50 Hz rate
   }
  
   gyro_bias[0] /= (int32_t) fcount; // get average values
@@ -244,7 +262,7 @@ void FXAS21002C_calibrate(float * gb)
 void FXAS21002C_reset() 
 {
 	reg_write(FXAS21002C_H_CTRL_REG1, 0x20); // set reset bit to 1 to assert software reset to zero at end of boot process
-	delay(100);
+	delay_us(100);
 	while(!(reg_read(FXAS21002C_H_INT_SRC_FLAG) & 0x08))  
 	{ 
 		;// wait for boot end flag to be set
