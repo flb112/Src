@@ -22,17 +22,17 @@ const UM_TABLE um_Param1[]={
     UM_ENTRY(0x02,0x04,2,NODE_ID),		            //设备地址 节点ID 
     UM_ENTRY(0x02,0x05,2,CO_BitRate),		        //CAN波特率
     UM_ENTRY(0x02,0x06,2,DeviceFir_Type),		    //设备类型
-    UM_ENTRY(0x02,0x07,2,RdStart),		            //触发读
-    UM_ENTRY(0x02,0x08,2,MappingRange),		        //设置量程    
+//    UM_ENTRY(0x02,0x07,2,RdStart),		            //触发读
+//    UM_ENTRY(0x02,0x08,2,MappingRange),		        //设置量程    
     UM_ENTRY(0x02,0x09,4,time_buf[0]),		        //校准时间戳  
-    UM_ENTRY(0x02,0x0a,2,TestMod),                  //测试模式   
+//    UM_ENTRY(0x02,0x0a,2,TestMod),                  //测试模式   
 
     UM_ENTRY(0x02,0x0b,4,TempCalib[0]),             //温度校准点0 ,1
 
     UM_ENTRY(0x02,0x0c,4,TempActual[0]),            //温度校准点实测值0 ,1
     UM_ENTRY(0x02,0x0d,2,TempCalibComp),            //温度校准点完成   
     UM_ENTRY(0x02,0x0e,2,TempOffset),               //温度校准点完成      
-    UM_ENTRY(0x02,0x0f,2,Osa_Hz),                   //采样频率设定   
+//    UM_ENTRY(0x02,0x0f,2,Osa_Hz),                   //采样频率设定   
     
 };
 
@@ -59,7 +59,7 @@ const UM_TABLE um_Param2[]={
 	UM_ENTRY(0x01,0x05,2,PressureBuf),	//气压
     UM_ENTRY(0x01,0x06,2,TempBuf),		//温度
     UM_ENTRY(0x01,0x07,2,HumiBuf),		//湿度     
-    UM_ENTRY(0x01,0x08,2,RdReturn),     //读取合闸过程数据       
+//    UM_ENTRY(0x01,0x08,2,RdReturn),     //读取合闸过程数据       
     
     
     
@@ -276,7 +276,7 @@ void Co_DataWrite_Proc(int16u *databuf,int16u *txc_index,int8u DataType,int16u S
               
               case 8: //量程设置
 
-              if(Select_g_Range(Data[2]))
+              /*if(Select_g_Range(Data[2]))
               {
                    Co_DataWrite_Return((databuf),txc_index,DataType,StdId,2);                
               }
@@ -320,7 +320,7 @@ void Co_DataWrite_Proc(int16u *databuf,int16u *txc_index,int8u DataType,int16u S
                    break;
               }
               *databuf = temp;
-              kx122_init();
+              //kx122_init();
               Co_DataWrite_Return(databuf,txc_index,DataType,StdId,2);  
               break;              
               case 0x0b: //温度校准点 设置
@@ -479,7 +479,7 @@ void Co_DataPacket_Many(int16u *databuf,int16u *txc_index,int8u DataType,int16u 
             Co_TxCan[*txc_index].Data[SLAVECOMMANDS_TIMERSTAMP_H1]=  time_buf[3] ;    //时间戳H0
             Co_TxCan[*txc_index].Data[SLAVECOMMANDS_DATA1]       =   0;//数据1L   
             
-            RdReturn=1;
+//            RdReturn=1;
             
    /*                      
             (*txc_index)++;        

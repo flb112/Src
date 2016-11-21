@@ -35,7 +35,6 @@
 #include "can_drive.h"
 #include "canbus.h"
 #include "spi.h"
-#include "spi_drive.h"
 #include "wdg.h"
 //************************************************************************
 //

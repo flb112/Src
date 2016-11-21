@@ -15,7 +15,14 @@
 
 
 
-
+int8u Can_Mode;     // 
+int8u RD_MOD;
+int16u CAN_data_buf_head;
+int16u NODE_ID;       //節點ID
+int16u CO_BitRate;         //波特率
+CanRxMsg Re_CanBuf[8];
+CO_CANBUSMESSAGE	Co_RxCan[CO_RXCAN_NUM_MSGS];
+CO_CANBUSMESSAGE	Co_TxCan[CO_TXCAN_NUM_MSGS];
 //CAN初始化
 //tsjw:重新同步跳跃时间单元.范围:1~3; CAN_SJW_1tq	 CAN_SJW_2tq CAN_SJW_3tq CAN_SJW_4tq
 //tbs2:时间段2的时间单元.范围:1~8;
@@ -373,6 +380,48 @@ int16u  NodeId_Rd(void)
  
 }
 */
+/*
+ * 发送一帧数据(lfb-0929)
+ */
+uint8_t  can_frame_send(void *frame)
+{
+    uint8_t mbox;
+    uint16_t retry=0;
+    CanTxMsg msg;
+    msg.StdId=0x480+NODE_ID;//msg->StdId;	// 标准标识符为0
+    msg.ExtId=00;//msg->ExtId;				// 设置扩展标示符（29位）
+    msg.IDE=CAN_ID_STD;			            // 使用扩展标识符 CAN_ID_STD;//(标识符模式)// CAN_ID_EXT （扩展标识符模式）
+    msg.RTR=CAN_RTR_DATA;                    //	CAN_RTR_REMOTE	                // 消息类型为数据帧，一帧8位 CAN_RTR_DATA
+    msg.DLC=8;	
+  
+    memcpy(msg.Data,frame,8);
+    mbox= CAN_Transmit(CAN1, &msg);
+    while((CAN_TransmitStatus(CAN1, mbox)==CAN_TxStatus_Failed)&&(retry<0X0a))
+        retry++;	//等待发送结束
+    if(retry>=0X0a)
+        return 1;
+    else
+        return 0;
+}
+
+/*
+ *发送数据
+ */
+uint8_t can_send(uint8_t *txd,uint8_t len)
+{
+    uint8_t tx_data[8];
+    
+    memset(tx_data,0,sizeof(tx_data));
+    if(len > 8)     //(=8)just for test 
+    {
+        len = 8;
+    }
+    memcpy(tx_data,txd,len);
+    return (can_frame_send(tx_data));
+}
+
+
+
 u8 Text_Send_Msg(void)
 {	
   u8 mbox;
@@ -380,7 +429,7 @@ u8 Text_Send_Msg(void)
   static u16 recvcnt=0;
   CanTxMsg TxMessage;
 
-  if(!RdReturn) return 0;//回复信号
+/*  if(!RdReturn) return 0;//回复信号
 
      TxMessage.StdId=0x480+NODE_ID;//msg->StdId;	// 标准标识符为0
      TxMessage.ExtId=00;//msg->ExtId;				// 设置扩展标示符（29位）
@@ -413,7 +462,7 @@ u8 Text_Send_Msg(void)
         recvcnt =0;
         RdReturn=0;
         mbox= CAN_Transmit(CAN1, &TxMessage);             
-
+*/
         return 0;
 }
 

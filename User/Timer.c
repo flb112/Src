@@ -12,7 +12,6 @@
 //************************************************************************
 #define   __TIMER_C__
 #include  "_Include.h"
-#include "fxas21002_drv.h"
 /*******************************************************************************
 * Function Name  :定时
 * Description    : 定时器2初始化
@@ -168,7 +167,7 @@ void Time3_Init( void)
 	TIM_TimeBaseStructure.TIM_Prescaler = PrescalerValue;	
 	TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;		//值为0该功能不使用
 	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;	//向上计数
-	TIM_TimeBaseInit(TIM4, &TIM_TimeBaseStructure);	
+	TIM_TimeBaseInit(TIM3, &TIM_TimeBaseStructure);	
 	TIM_ARRPreloadConfig(TIM3, ENABLE);			//使能预装载寄存器
 	
 	/* Configure one bit for preemption priority */

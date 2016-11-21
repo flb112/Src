@@ -12,7 +12,6 @@
 //************************************************************************
 #define   _INIT_C_
 #include "_Include.h"
-#include "stm32_spi.h"
 //************************************************************************
 // *功    能：IO设置成默认值
 // *入    口：
@@ -103,7 +102,7 @@ void RCC_Configuration(void)
         RCC_HCLKConfig(RCC_SYSCLK_Div1);        //设置HCLK（AHB时钟）=SYSCLK  72m
         RCC_PCLK1Config(RCC_HCLK_Div1);        //PCLK1(APB1) = HCLK/2
         RCC_PCLK2Config(RCC_HCLK_Div1);        //PCLK2(APB2) = HCLK        
-        RCC_ADCCLKConfig(RCC_PCLK2_Div2);      //设置ADC时钟频率
+        RCC_ADCCLKConfig(RCC_PCLK2_Div8);      //设置ADC时钟频率
         //FLASH时序控制
         //推荐值：SYSCLK = 0~24MHz   Latency=0
         //        SYSCLK = 24~48MHz  Latency=1
@@ -207,8 +206,7 @@ void NVIC_Configuration(void)
 #endif    
 #if Kionx_Acc
 //    KxRange=8;       //4G 
-//    MappingRange=4;  //4G   
-    Select_g_Range(4);    
+//    MappingRange=4;  //4G      
     
     NODE_ID=2;
     DeviceFir_Type=2;//设备类型

@@ -14,7 +14,7 @@
 	#define __TIMER_H__
 #include "_Type.h"
 	/*-----宏定义---------------------*/
-#define TIM3_TICK   165 //us
+#define TIM3_TICK   313 //us
 	/*-----结构体数据类型定义---------*/
 typedef void (*hk_tm_proc)(void);
 

@@ -39,10 +39,10 @@ void  Flash_SaveUserPara( void )
     FLASH_ProgramHalfWord(USER_ADDR+6,NODE_ID);
     FLASH_ProgramHalfWord(USER_ADDR+8,CO_BitRate);//
     FLASH_ProgramHalfWord(USER_ADDR+10,DeviceFir_Type);//    
-    FLASH_ProgramHalfWord(USER_ADDR+12,KxRange);//     
+//    FLASH_ProgramHalfWord(USER_ADDR+12,KxRange);//     
     
     FLASH_ProgramHalfWord(USER_ADDR+14,DeviceFir_Version);// MappingRange
-    FLASH_ProgramHalfWord(USER_ADDR+16,MappingRange);//
+//    FLASH_ProgramHalfWord(USER_ADDR+16,MappingRange);//
 //    FLASH_ProgramHalfWord(USER_ADDR+18,TestMod);//
 
     FLASH_ProgramHalfWord(USER_ADDR+20,TempCalib[0]);//
@@ -86,9 +86,9 @@ void  Flash_ReadUserPara( void )
        CO_BitRate      =*(int16u*)(USER_ADDR+8) ;
        
        DeviceFir_Type  =*(int16u*)(USER_ADDR+10) ;
-       KxRange         =*(int16u*)(USER_ADDR+12) ;
+//       KxRange         =*(int16u*)(USER_ADDR+12) ;
        DeviceFir_Version=*(int16u*)(USER_ADDR+14) ;
-       MappingRange     =*(int16u*)(USER_ADDR+16) ;
+//       MappingRange     =*(int16u*)(USER_ADDR+16) ;
 //       TestMod          =*(int16u*)(USER_ADDR+18) ;
        TempCalib[0]     =*(int16u*)(USER_ADDR+20) ; 
        TempCalib[1]     =*(int16u*)(USER_ADDR+22) ;

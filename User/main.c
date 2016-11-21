@@ -14,15 +14,7 @@
 #define   __MAIN_C__
 #include  "_Include.h"
 #include "stm32_spi.h"
-#include "fxas21002_drv.h"
-
-
-
-
-
-
-
-
+#include "gyro_drv.h"
 
 
 //************************************************************************
@@ -37,9 +29,10 @@
    Init_All();
    // TIMInit();
     Str_Init();
-    AccStr_Init();    
+//    AccStr_Init();    
     delay_init(72); 
     Flash_ReadUserPara(); 
+    Can_BaudSetGet(&CO_BitRate); 
     I2C_MEMS_Init();
 #if LPS25HB 
     Lps25Hb_Init();
@@ -48,16 +41,12 @@
    HTS221_Init();  
    RdCalib_Data();  
 #endif    
-
-
-#if Kionx_Acc
-   SpiDrive_Init();
-#endif 
-   spi_init();
-   FXAS21002C_init();
+    spi_init();
+    gyro_ang_init();
+   
    
     Temp_Calib();
-    Can_BaudSetGet(&CO_BitRate);  
+     
  //   TestMod=1;
  //   IWDG_Init(4,322);    //与分频数为64,重载值为625,溢出时间为1s
 	while(1)
@@ -83,7 +72,7 @@
              TempBuf=Temp_Calcu();   //溫度
 #endif
 #if Kionx_Acc
-             AccTran_AngCalc();             
+//             AccTran_AngCalc();             
              
 #endif             
           } 

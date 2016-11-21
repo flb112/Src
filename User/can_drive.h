@@ -13,7 +13,8 @@
 //************************************************************************
 #ifndef __CAN_DRIVE_H__
 	#define __CAN_DRIVE_H__
-#include "spi_drive.h"
+#include "stm32f10x_can.h"
+#include "_Type.h"
 	/*-----宏定义---------------------*/
 //CAN接收RX0中断使能
 #define CAN_RX0_INT_ENABLE	1		//0,不使能;1,使能.
@@ -79,9 +80,22 @@ u8 Can_Receive_Msg(u8 *buf);							  //接收数据
 void Can_BaudSetGet (int16u *bitrate);                                              //波特率设置
 int16u  NodeId_Rd(void);                                                        //节点Id读取
 void NodeId_Wr(int16u id);                                                        //节点Id修改
+uint8_t can_send(uint8_t *txd,uint8_t len);
 u8 Text_Send_Msg(void);
 u8 T_Send_Msg(int8u * msg);
  void CanStandbyMode_Init(void);
+ 
+/*-------------变量声明--------------*/
+extern int8u Can_Mode;     // 
+extern int8u RD_MOD;
+extern int16u CAN_data_buf_head;
+extern int16u NODE_ID;       //節點ID
+extern int16u CO_BitRate;         //波特率
+extern CanRxMsg Re_CanBuf[8];
+extern CO_CANBUSMESSAGE	Co_RxCan[CO_RXCAN_NUM_MSGS];
+extern CO_CANBUSMESSAGE	Co_TxCan[CO_TXCAN_NUM_MSGS];
+
+
 #endif
 
 //***********************************************************************/
@@ -90,15 +104,7 @@ u8 T_Send_Msg(int8u * msg);
 #else
 #define  CAN_EXT  extern
 #endif
-/*-------------变量声明--------------*/
-CAN_EXT int8u Can_Mode;     // 
-CAN_EXT int8u RD_MOD;
-CAN_EXT int16u CAN_data_buf_head;
-CAN_EXT int16u NODE_ID;       //節點ID
-CAN_EXT int16u CO_BitRate;         //波特率
-CAN_EXT CanRxMsg Re_CanBuf[8];
-CAN_EXT CO_CANBUSMESSAGE	Co_RxCan[CO_RXCAN_NUM_MSGS];
-CAN_EXT CO_CANBUSMESSAGE	Co_TxCan[CO_TXCAN_NUM_MSGS];
+
 //***********************************************************************/
 
 
