@@ -28,24 +28,16 @@
  {	 
    Init_All();
    // TIMInit();
-    Str_Init();
 //    AccStr_Init();    
     delay_init(72); 
     Flash_ReadUserPara(); 
     Can_BaudSetGet(&CO_BitRate); 
-    I2C_MEMS_Init();
-#if LPS25HB 
-    Lps25Hb_Init();
-#endif
-#if HTS221
-   HTS221_Init();  
-   RdCalib_Data();  
-#endif    
+ 
     spi_init();
     gyro_ang_init();
    
    
-    Temp_Calib();
+
      
  //   TestMod=1;
  //   IWDG_Init(4,322);    //与分频数为64,重载值为625,溢出时间为1s
@@ -62,41 +54,12 @@
            if( T100MSFlag)
            { 
               T100MSFlag=0;
-              Text_Send_Msg();
-#if LPS25HB 
-              PressureBuf=Hpa_Rd();   //气压值
-#endif
-            
-#if HTS221             
-             HumiBuf=Humi_Calcu();   //濕度    
-             TempBuf=Temp_Calcu();   //溫度
-#endif
-#if Kionx_Acc
-//             AccTran_AngCalc();             
-             
-#endif             
+              Text_Send_Msg();             
           } 
         }
      
 	}
 }
-
-
-
-/*
-春来日语菊幽奇，
-霞映接天蒙烟雨。
-玲珑骰子安红豆，
-无端抱影销魂处
-玉容熙醉移人远。
-敲门借问天台路，
-路过小桥有断桥。
-
-长恨相从未了，而今何事，又对西风离别。 
-渚寒霞淡，玉容蒙悴，棹移人远，缥缈行舟如叶。 
-想文君望久，倚竹愁生步罗袜。 
-归来后，翠尊双饮，下了珠帘，玲珑闲看月。 
-*/
 
 
 

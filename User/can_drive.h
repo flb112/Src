@@ -80,7 +80,7 @@ u8 Can_Receive_Msg(u8 *buf);							  //接收数据
 void Can_BaudSetGet (int16u *bitrate);                                              //波特率设置
 int16u  NodeId_Rd(void);                                                        //节点Id读取
 void NodeId_Wr(int16u id);                                                        //节点Id修改
-uint8_t can_send(uint8_t *txd,uint8_t len);
+uint8_t  can_frame_send(void *frame);
 u8 Text_Send_Msg(void);
 u8 T_Send_Msg(int8u * msg);
  void CanStandbyMode_Init(void);

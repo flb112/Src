@@ -25,14 +25,7 @@ const UM_TABLE um_Param1[]={
 //    UM_ENTRY(0x02,0x07,2,RdStart),		            //触发读
 //    UM_ENTRY(0x02,0x08,2,MappingRange),		        //设置量程    
     UM_ENTRY(0x02,0x09,4,time_buf[0]),		        //校准时间戳  
-//    UM_ENTRY(0x02,0x0a,2,TestMod),                  //测试模式   
-
-    UM_ENTRY(0x02,0x0b,4,TempCalib[0]),             //温度校准点0 ,1
-
-    UM_ENTRY(0x02,0x0c,4,TempActual[0]),            //温度校准点实测值0 ,1
-    UM_ENTRY(0x02,0x0d,2,TempCalibComp),            //温度校准点完成   
-    UM_ENTRY(0x02,0x0e,2,TempOffset),               //温度校准点完成      
-//    UM_ENTRY(0x02,0x0f,2,Osa_Hz),                   //采样频率设定   
+//    UM_ENTRY(0x02,0x0a,2,TestMod),                  //测试模式    
     
 };
 
@@ -54,15 +47,7 @@ const UM_TABLE um_Param2[]={
 	UM_ENTRY(0x01,0x01,2,AlldataBuf[0]),		//x
 	UM_ENTRY(0x01,0x02,2,AlldataBuf[1]),		//y
     UM_ENTRY(0x01,0x03,2,AlldataBuf[2]),		//z
-    UM_ENTRY(0x01,0x04,6,AlldataBuf[0]),		//all 
-    
-	UM_ENTRY(0x01,0x05,2,PressureBuf),	//气压
-    UM_ENTRY(0x01,0x06,2,TempBuf),		//温度
-    UM_ENTRY(0x01,0x07,2,HumiBuf),		//湿度     
-//    UM_ENTRY(0x01,0x08,2,RdReturn),     //读取合闸过程数据       
-    
-    
-    
+    UM_ENTRY(0x01,0x04,6,AlldataBuf[0]),		//all     
 };
 
 const	int16u	umParamNum1 = sizeof(um_Param1) / sizeof(um_Param1[0]);		//参数个数
@@ -323,53 +308,7 @@ void Co_DataWrite_Proc(int16u *databuf,int16u *txc_index,int8u DataType,int16u S
               //kx122_init();
               Co_DataWrite_Return(databuf,txc_index,DataType,StdId,2);  
               break;              
-              case 0x0b: //温度校准点 设置
-              case 0x0c: //当前的温度值设置
-
-              *databuf = (*databuf & 0x0000);
-              *databuf = (*databuf | Data[3])<<8;
-              *databuf = (*databuf | Data[2]); 
-
-              
-              databuf++;
-              *databuf = (*databuf & 0x0000);
-              *databuf = (*databuf | Data[5])<<8;
-              *databuf = (*databuf | Data[4]);                
-              Temp_Calib();
-              databuf--;
-              Co_DataWrite_Return((databuf),txc_index,DataType,StdId,4);              
-              break;               
-              
-              case 0x0d: //完成温度校准
-
-              temp=0;
-              temp=(temp|Data[3])<<8;
-              temp=(temp|Data[2]);
-              if(temp>1 || temp<0 )                            //
-              {
-                   Co_DataPacket_Error(txc_index,DataType,StdId); 
-                   break;
-              }
-              *databuf = temp;
-               if(*databuf)
-               {  
-                  Temp_Calib();
-                  Flash_SaveUserPara(); 
-               }
-              Co_DataWrite_Return(databuf,txc_index,DataType,StdId,2);  
-              break;              
-              case 0x0e: //温度偏移量
-
-              temp=0;
-              temp=(temp|Data[3])<<8;
-              temp=(temp|Data[2]);
-
-              *databuf = temp;
-              Flash_SaveUserPara(); 
-              Co_DataWrite_Return(databuf,txc_index,DataType,StdId,2);  
-              break;                 
-              
-              
+        
              default:
                 Co_DataPacket_Error(txc_index,DataType,StdId); 
               break;

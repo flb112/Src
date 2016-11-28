@@ -404,21 +404,6 @@ uint8_t  can_frame_send(void *frame)
         return 0;
 }
 
-/*
- *·¢ËÍÊý¾Ý
- */
-uint8_t can_send(uint8_t *txd,uint8_t len)
-{
-    uint8_t tx_data[8];
-    
-    memset(tx_data,0,sizeof(tx_data));
-    if(len > 8)     //(=8)just for test 
-    {
-        len = 8;
-    }
-    memcpy(tx_data,txd,len);
-    return (can_frame_send(tx_data));
-}
 
 
 

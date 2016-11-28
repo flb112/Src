@@ -198,31 +198,12 @@ void NVIC_Configuration(void)
 {	
 
 
- 
-#if HTS221
-   NODE_ID=1;
-   DeviceFir_Type=1;  //设备类型
-   TempCalib_Init();   //温度校准
-#endif    
-#if Kionx_Acc
-//    KxRange=8;       //4G 
-//    MappingRange=4;  //4G      
-    
-    NODE_ID=2;
-    DeviceFir_Type=2;//设备类型
-    
-#endif     
+  
    DeviceFir_Number[0]=0x01;
    DeviceFir_Number[1]=0x00;
 
    CO_BitRate=3;
-   DeviceFir_Version=0x38d;
-
-
-   TempOffset=0; 
- 
- 
- 
+   DeviceFir_Version=0x38d; 
 }
 //************************************************************************
 // *功    能：系统初始化

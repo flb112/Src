@@ -26,6 +26,7 @@
 /* 
  * Macros
  */
+#define _FREQ_IO_TEST   0   
 // register addresses LSM6DSL_H_
 #define RW_FUNC_CFG_ACCESS             0x01
 #define RW_SNR_SYNC_TIME_FRAME         0x04
@@ -167,7 +168,7 @@ static uint8 gyro_reset()
     //reg_write(RW_FUNC_CFG_ACCESS,0x80);  // Enable access to the embedded functions configuration registers
     reg_write(RW_CTRL3_C,0x01); //reset
     //reg_write(RW_FUNC_CFG_ACCESS,0x00);
-	delay_us(100);
+	delay_ms(50);
 	while(cnt<200)  
 	{ 
 		regs_read(R_WHO_AM_I,1,&tmp);
@@ -195,7 +196,7 @@ void gyro_sensor_init()
     uint8 odr,fsr;
     //odr = GODR_3330HZ; 
 	//fsr = GFS_2000DPS;
-#if 0
+#if _FREQ_IO_TEST
     GPIO_InitTypeDef GPIO_InitStructure;
 
   	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
@@ -214,7 +215,7 @@ void gyro_sensor_init()
     tmp = 0x05<<5;
     reg_write(RW_CTRL8_XL,tmp); //BW=ODR/100
     
-    odr = GODR_6660HZ;
+    odr = GODR_3330HZ;
 	fsr = GFS_2000DPS;
     tmp = (odr<<4)|(fsr<<2);
     reg_write(RW_CTRL2_G,tmp);
@@ -233,8 +234,9 @@ void gyro_sensor_init()
     
     timer_set_hook(3,gyro_read);
 }
-
+#if _FREQ_IO_TEST
 static uint8 st=0;
+#endif
 // Read the gyroscope data
 void gyro_read()
 {
@@ -242,7 +244,7 @@ void gyro_read()
     int16 ang_tmp;
 	regs_read(R_OUTX_L_G, 6, &raw_data[2]);  // Read the six raw data registers into data array
 
-    regs_read(R_OUTX_L_XL, 6, &raw_data[0]);
+    //regs_read(R_OUTX_L_XL, 6, &raw_data[0]);
     /*regs_read(R_OUTX_L_XL, 6, &acc_data[0]);
     
     ang_tmp = (int16)ang_x;
@@ -254,7 +256,7 @@ void gyro_read()
 
     //can_send(raw_data,sizeof(raw_data));
     can_frame_send(raw_data);
-#if 0
+#if _FREQ_IO_TEST
     if(1==st)
     {
         st=0;
